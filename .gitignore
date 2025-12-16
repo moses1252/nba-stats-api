@@ -31,3 +31,6 @@ build/
 
 ### VS Code ###
 .vscode/
+
+## my pass word ###
+application-local.properties
