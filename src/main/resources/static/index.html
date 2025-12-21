@@ -1,0 +1,214 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>NBA Stats API</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 15px;
+            padding: 30px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+        }
+
+        h1 {
+            text-align: center;
+            color: #333;
+            margin-bottom: 10px;
+            font-size: 2.5em;
+        }
+
+        .subtitle {
+            text-align: center;
+            color: #666;
+            margin-bottom: 30px;
+            font-size: 1.1em;
+        }
+
+        .search-box {
+            width: 100%;
+            padding: 15px;
+            font-size: 16px;
+            border: 2px solid #667eea;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            outline: none;
+            transition: border-color 0.3s;
+        }
+
+        .search-box:focus {
+            border-color: #764ba2;
+        }
+
+        .stats-info {
+            background: #f8f9fa;
+            padding: 15px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            text-align: center;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+        }
+
+        thead {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+        }
+
+        th {
+            padding: 15px;
+            text-align: left;
+            font-weight: 600;
+        }
+
+        td {
+            padding: 12px 15px;
+            border-bottom: 1px solid #eee;
+        }
+
+        tbody tr:hover {
+            background: #f8f9fa;
+            cursor: pointer;
+            transition: background 0.2s;
+        }
+
+        .loading {
+            text-align: center;
+            padding: 40px;
+            font-size: 1.2em;
+            color: #667eea;
+        }
+
+        .error {
+            background: #fee;
+            border: 2px solid #fcc;
+            padding: 20px;
+            border-radius: 8px;
+            color: #c33;
+            text-align: center;
+        }
+
+        .position-badge {
+            display: inline-block;
+            padding: 4px 8px;
+            border-radius: 4px;
+            font-size: 0.85em;
+            font-weight: 600;
+        }
+
+        .position-PG { background: #e3f2fd; color: #1976d2; }
+        .position-SG { background: #f3e5f5; color: #7b1fa2; }
+        .position-SF { background: #e8f5e9; color: #388e3c; }
+        .position-PF { background: #fff3e0; color: #f57c00; }
+        .position-C { background: #fce4ec; color: #c2185b; }
+    </style>
+</head>
+<body>
+<div class="container">
+    <h1>🏀 NBA Player Stats</h1>
+    <p class="subtitle">2023-2024 Regular Season</p>
+
+    <input
+            type="text"
+            id="searchBox"
+            class="search-box"
+            placeholder="Search by player name, team, or position..."
+    >
+
+    <div class="stats-info">
+        <strong>Total Players:</strong> <span id="playerCount">Loading...</span>
+    </div>
+
+    <div id="content">
+        <div class="loading">Loading players...</div>
+    </div>
+</div>
+
+<script>
+    let allPlayers = [];
+
+    // Fetch players when page loads
+    async function loadPlayers() {
+        try {
+            const response = await fetch('/api/players');
+            allPlayers = await response.json();
+
+            document.getElementById('playerCount').textContent = allPlayers.length;
+            displayPlayers(allPlayers);
+        } catch (error) {
+            document.getElementById('content').innerHTML =
+                '<div class="error">Error loading players. Make sure the API is running!</div>';
+        }
+    }
+
+    // Display players in a table
+    function displayPlayers(players) {
+        const html = `
+            <table>
+                <thead>
+                    <tr>
+                        <th>Name</th>
+                        <th>Position</th>
+                        <th>Age</th>
+                        <th>Team</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    ${players.map(player => `
+                        <tr onclick="viewPlayer(${player.id})">
+                            <td><strong>${player.name}</strong></td>
+                            <td><span class="position-badge position-${player.position}">${player.position}</span></td>
+                            <td>${player.age}</td>
+                            <td>${player.team}</td>
+                        </tr>
+                    `).join('')}
+                </tbody>
+            </table>
+        `;
+
+        document.getElementById('content').innerHTML = html;
+    }
+
+    // Search functionality
+    document.getElementById('searchBox').addEventListener('input', (e) => {
+        const searchTerm = e.target.value.toLowerCase();
+
+        const filtered = allPlayers.filter(player =>
+            player.name.toLowerCase().includes(searchTerm) ||
+            player.team.toLowerCase().includes(searchTerm) ||
+            player.position.toLowerCase().includes(searchTerm)
+        );
+
+        displayPlayers(filtered);
+    });
+
+    // View individual player (will add stats later)
+    function viewPlayer(id) {
+        alert(`Player ID: ${id}\n(Stats view coming soon!)`);
+    }
+
+    // Load players when page loads
+    loadPlayers();
+</script>
+</body>
+</html>
