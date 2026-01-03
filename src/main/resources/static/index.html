@@ -1,16 +1,14 @@
 <!DOCTYPE html>
 <html lang="en">
-
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>NBA Stats API</title>
-
     <style>
-        /* CSS controls how things look on the page */
-
+        /* ========================================
+           GLOBAL RESET & BASE STYLES
+           ======================================== */
         * {
-            /* Reset default browser spacing */
             margin: 0;
             padding: 0;
             box-sizing: border-box;
@@ -18,20 +16,28 @@
 
         body {
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            /* Purple gradient background */
             background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
             min-height: 100vh;
             padding: 20px;
         }
 
+        /* ========================================
+           MAIN CONTAINER
+           ======================================== */
         .container {
             max-width: 1200px;
-            margin: 0 auto; /* Centers the container */
+            margin: 0 auto;
             background: white;
             border-radius: 15px;
             padding: 30px;
+            /* Drop shadow for depth */
             box-shadow: 0 20px 60px rgba(0,0,0,0.3);
         }
 
+        /* ========================================
+           HEADER SECTION
+           ======================================== */
         h1 {
             text-align: center;
             color: #333;
@@ -46,6 +52,9 @@
             font-size: 1.1em;
         }
 
+        /* ========================================
+           SEARCH BOX
+           ======================================== */
         .search-box {
             width: 100%;
             padding: 15px;
@@ -54,14 +63,17 @@
             border-radius: 8px;
             margin-bottom: 20px;
             outline: none;
-            transition: border-color 0.3s; /* Smooth color change animation */
+            transition: border-color 0.3s;
         }
 
+        /* Change border color when focused */
         .search-box:focus {
-            /* :focus = when user clicks into the input */
             border-color: #764ba2;
         }
 
+        /* ========================================
+           STATS INFO BOX (Player Count)
+           ======================================== */
         .stats-info {
             background: #f8f9fa;
             padding: 15px;
@@ -70,12 +82,16 @@
             text-align: center;
         }
 
+        /* ========================================
+           PLAYER TABLE STYLES
+           ======================================== */
         table {
             width: 100%;
             border-collapse: collapse;
             margin-top: 20px;
         }
 
+        /* Table header with gradient */
         thead {
             background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
             color: white;
@@ -92,13 +108,16 @@
             border-bottom: 1px solid #eee;
         }
 
+        /* Hover effect on table rows */
         tbody tr:hover {
-            /* Change background when mouse hovers over a row */
             background: #f8f9fa;
             cursor: pointer;
             transition: background 0.2s;
         }
 
+        /* ========================================
+           LOADING & ERROR STATES
+           ======================================== */
         .loading {
             text-align: center;
             padding: 40px;
@@ -115,6 +134,9 @@
             text-align: center;
         }
 
+        /* ========================================
+           POSITION BADGES (Color-coded by position)
+           ======================================== */
         .position-badge {
             display: inline-block;
             padding: 4px 8px;
@@ -123,21 +145,142 @@
             font-weight: 600;
         }
 
-        /* Different color for each position */
+        /* Point Guard - Blue */
         .position-PG { background: #e3f2fd; color: #1976d2; }
+
+        /* Shooting Guard - Purple */
         .position-SG { background: #f3e5f5; color: #7b1fa2; }
+
+        /* Small Forward - Green */
         .position-SF { background: #e8f5e9; color: #388e3c; }
+
+        /* Power Forward - Orange */
         .position-PF { background: #fff3e0; color: #f57c00; }
+
+        /* Center - Pink */
         .position-C { background: #fce4ec; color: #c2185b; }
+
+        /* ========================================
+           MODAL (Popup) STYLES
+           ======================================== */
+        /* Modal background overlay */
+        .modal {
+            display: none; /* Hidden by default */
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.7); /* Semi-transparent black */
+            z-index: 1000; /* On top of everything */
+            overflow-y: auto; /* Scrollable if content is long */
+        }
+
+        /* Modal content box */
+        .modal-content {
+            background: white;
+            margin: 50px auto;
+            padding: 30px;
+            border-radius: 15px;
+            max-width: 600px;
+            position: relative;
+            animation: slideDown 0.3s ease;
+        }
+
+        /* Slide down animation when modal opens */
+        @keyframes slideDown {
+            from {
+                transform: translateY(-50px);
+                opacity: 0;
+            }
+            to {
+                transform: translateY(0);
+                opacity: 1;
+            }
+        }
+
+        /* Close button (X) */
+        .close-btn {
+            position: absolute;
+            top: 15px;
+            right: 20px;
+            font-size: 30px;
+            color: #999;
+            cursor: pointer;
+            transition: color 0.2s;
+        }
+
+        .close-btn:hover {
+            color: #333;
+        }
+
+        /* Modal heading */
+        .modal h2 {
+            color: #667eea;
+            margin-bottom: 20px;
+            padding-bottom: 10px;
+            border-bottom: 2px solid #eee;
+        }
+
+        /* ========================================
+           STATS DISPLAY IN MODAL
+           ======================================== */
+        /* Each stat row (label + value) */
+        .stat-row {
+            display: flex;
+            justify-content: space-between;
+            padding: 12px;
+            border-bottom: 1px solid #eee;
+        }
+
+        .stat-row:hover {
+            background: #f8f9fa;
+        }
+
+        /* Left side - stat name */
+        .stat-label {
+            font-weight: 600;
+            color: #666;
+        }
+
+        /* Right side - stat value */
+        .stat-value {
+            color: #333;
+            font-weight: 500;
+        }
+
+        /* ========================================
+           PLAYER HEADER IN MODAL
+           ======================================== */
+        .player-header {
+            text-align: center;
+            margin-bottom: 20px;
+            padding: 20px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border-radius: 8px;
+        }
+
+        .player-header h3 {
+            font-size: 1.8em;
+            margin-bottom: 5px;
+        }
+
+        .player-header p {
+            opacity: 0.9;
+        }
     </style>
 </head>
-
 <body>
-
+<!-- ========================================
+     MAIN PAGE CONTENT
+     ======================================== -->
 <div class="container">
+    <!-- Page Title -->
     <h1>🏀 NBA Player Stats</h1>
     <p class="subtitle">2023-2024 Regular Season</p>
 
+    <!-- Search Input Box -->
     <input
             type="text"
             id="searchBox"
@@ -145,41 +288,70 @@
             placeholder="Search by player name, team, or position..."
     >
 
+    <!-- Player Count Display -->
     <div class="stats-info">
-        <strong>Total Players:</strong>
-        <span id="playerCount">Loading...</span>
+        <strong>Total Players:</strong> <span id="playerCount">Loading...</span>
     </div>
 
-    <!-- This div gets filled with the player table by JavaScript -->
+    <!-- Main Content Area (Table will be inserted here by JavaScript) -->
     <div id="content">
         <div class="loading">Loading players...</div>
     </div>
 </div>
 
+<!-- ========================================
+     MODAL POPUP (Hidden by default)
+     Shows when user clicks a player
+     ======================================== -->
+<div id="statsModal" class="modal">
+    <div class="modal-content">
+        <!-- Close Button -->
+        <span class="close-btn" onclick="closeModal()">&times;</span>
+
+        <!-- Modal Content (Stats will be inserted here) -->
+        <div id="modalContent">
+            <div class="loading">Loading stats...</div>
+        </div>
+    </div>
+</div>
+
+<!-- ========================================
+     JAVASCRIPT CODE
+     ======================================== -->
 <script>
-    // JavaScript makes the page interactive
+    // ========================================
+    // GLOBAL VARIABLES
+    // ========================================
+    let allPlayers = []; // Stores all players from API
 
-    let allPlayers = []; // Stores all player data
-
-    // Fetches player data from your Spring Boot API
+    // ========================================
+    // FUNCTION: Load all players from API
+    // Runs when page first loads
+    // ========================================
     async function loadPlayers() {
         try {
-            // GET request to /api/players endpoint
+            // Fetch data from our Spring Boot API
             const response = await fetch('/api/players');
-            allPlayers = await response.json();
+            allPlayers = await response.json(); // Convert to JavaScript array
 
-            // Update the player count and display table
+            // Update player count display
             document.getElementById('playerCount').textContent = allPlayers.length;
-            displayPlayers(allPlayers);
 
+            // Display all players in table
+            displayPlayers(allPlayers);
         } catch (error) {
+            // If API fails, show error message
             document.getElementById('content').innerHTML =
                 '<div class="error">Error loading players. Make sure the API is running!</div>';
         }
     }
 
-    // Creates the HTML table with player data
+    // ========================================
+    // FUNCTION: Display players in HTML table
+    // Takes an array of players and creates table HTML
+    // ========================================
     function displayPlayers(players) {
+        // Build HTML string for table
         const html = `
             <table>
                 <thead>
@@ -192,7 +364,7 @@
                 </thead>
                 <tbody>
                     ${players.map(player => `
-                        <tr onclick="viewPlayer(${player.id})">
+                        <tr onclick="viewPlayer(${player.id}, '${player.name}', '${player.position}', ${player.age}, '${player.team}')">
                             <td><strong>${player.name}</strong></td>
                             <td><span class="position-badge position-${player.position}">${player.position}</span></td>
                             <td>${player.age}</td>
@@ -203,31 +375,151 @@
             </table>
         `;
 
+        // Insert table HTML into the page
         document.getElementById('content').innerHTML = html;
     }
 
+    // ========================================
+    // SEARCH FUNCTIONALITY
     // Filters players as user types in search box
+    // ========================================
     document.getElementById('searchBox').addEventListener('input', (e) => {
+        // Get search term and convert to lowercase
         const searchTerm = e.target.value.toLowerCase();
 
-        // Keep only players that match the search
+        // Filter players array based on search term
         const filtered = allPlayers.filter(player =>
-            player.name.toLowerCase().includes(searchTerm) ||
-            player.team.toLowerCase().includes(searchTerm) ||
-            player.position.toLowerCase().includes(searchTerm)
+            player.name.toLowerCase().includes(searchTerm) ||    // Search by name
+            player.team.toLowerCase().includes(searchTerm) ||    // Search by team
+            player.position.toLowerCase().includes(searchTerm)   // Search by position
         );
 
+        // Display filtered results
         displayPlayers(filtered);
     });
 
-    // Placeholder function when clicking a player row
-    function viewPlayer(id) {
-        alert(`Player ID: ${id}\n(Stats view coming soon!)`);
+    // ========================================
+    // FUNCTION: View individual player stats
+    // Opens modal and fetches player statistics
+    // ========================================
+    async function viewPlayer(id, name, position, age, team) {
+        // Show the modal popup
+        document.getElementById('statsModal').style.display = 'block';
+
+        // Show loading message while fetching
+        document.getElementById('modalContent').innerHTML =
+            '<div class="loading">Loading stats...</div>';
+
+        try {
+            // Fetch player stats from API
+            const response = await fetch(`/api/stats/player/${id}`);
+            const stats = await response.json();
+
+            // If stats exist, display them
+            if (stats.length > 0) {
+                const playerStats = stats[0]; // Get first stats record
+
+                // Build HTML for stats display
+                document.getElementById('modalContent').innerHTML = `
+                    <!-- Player Info Header -->
+                    <div class="player-header">
+                        <h3>${name}</h3>
+                        <p>${position} • Age ${age} • ${team}</p>
+                    </div>
+
+                    <h2>Season Statistics</h2>
+
+                    <!-- Each stat as a row -->
+                    <div class="stat-row">
+                        <span class="stat-label">Games Played</span>
+                        <span class="stat-value">${playerStats.gamesPlayed || 'N/A'}</span>
+                    </div>
+
+                    <div class="stat-row">
+                        <span class="stat-label">Games Started</span>
+                        <span class="stat-value">${playerStats.gamesStarted || 'N/A'}</span>
+                    </div>
+
+                    <div class="stat-row">
+                        <span class="stat-label">Minutes Per Game</span>
+                        <span class="stat-value">${playerStats.minutesPerGame?.toFixed(1) || 'N/A'}</span>
+                    </div>
+
+                    <div class="stat-row">
+                        <span class="stat-label">Points Per Game</span>
+                        <span class="stat-value">${playerStats.pointsPerGame?.toFixed(1) || 'N/A'}</span>
+                    </div>
+
+                    <div class="stat-row">
+                        <span class="stat-label">Rebounds Per Game</span>
+                        <span class="stat-value">${playerStats.reboundsPerGame?.toFixed(1) || 'N/A'}</span>
+                    </div>
+
+                    <div class="stat-row">
+                        <span class="stat-label">Assists Per Game</span>
+                        <span class="stat-value">${playerStats.assistsPerGame?.toFixed(1) || 'N/A'}</span>
+                    </div>
+
+                    <div class="stat-row">
+                        <span class="stat-label">Steals Per Game</span>
+                        <span class="stat-value">${playerStats.stealsPerGame?.toFixed(1) || 'N/A'}</span>
+                    </div>
+
+                    <div class="stat-row">
+                        <span class="stat-label">Blocks Per Game</span>
+                        <span class="stat-value">${playerStats.blocksPerGame?.toFixed(1) || 'N/A'}</span>
+                    </div>
+
+                    <!-- Shooting percentages (multiply by 100 to show as percentage) -->
+                    <div class="stat-row">
+                        <span class="stat-label">Field Goal %</span>
+                        <span class="stat-value">${playerStats.fieldGoalPercentage ? (playerStats.fieldGoalPercentage * 100).toFixed(1) + '%' : 'N/A'}</span>
+                    </div>
+
+                    <div class="stat-row">
+                        <span class="stat-label">3-Point %</span>
+                        <span class="stat-value">${playerStats.threePointPercentage ? (playerStats.threePointPercentage * 100).toFixed(1) + '%' : 'N/A'}</span>
+                    </div>
+
+                    <div class="stat-row">
+                        <span class="stat-label">Free Throw %</span>
+                        <span class="stat-value">${playerStats.freeThrowPercentage ? (playerStats.freeThrowPercentage * 100).toFixed(1) + '%' : 'N/A'}</span>
+                    </div>
+                `;
+            } else {
+                // No stats found
+                document.getElementById('modalContent').innerHTML =
+                    '<div class="error">No stats found for this player.</div>';
+            }
+        } catch (error) {
+            // If API call fails
+            document.getElementById('modalContent').innerHTML =
+                '<div class="error">Error loading stats.</div>';
+        }
     }
 
-    // Load players when page loads
+    // ========================================
+    // FUNCTION: Close the modal
+    // ========================================
+    function closeModal() {
+        document.getElementById('statsModal').style.display = 'none';
+    }
+
+    // ========================================
+    // CLOSE MODAL when clicking outside of it
+    // ========================================
+    window.onclick = function(event) {
+        const modal = document.getElementById('statsModal');
+        // If user clicked on the dark background (not the modal itself)
+        if (event.target === modal) {
+            modal.style.display = 'none';
+        }
+    }
+
+    // ========================================
+    // START: Load players when page loads
+    // ========================================
     loadPlayers();
 </script>
-
 </body>
 </html>
