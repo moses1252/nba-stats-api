@@ -1,11 +1,16 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>NBA Stats API</title>
+
     <style>
+        /* CSS controls how things look on the page */
+
         * {
+            /* Reset default browser spacing */
             margin: 0;
             padding: 0;
             box-sizing: border-box;
@@ -20,7 +25,7 @@
 
         .container {
             max-width: 1200px;
-            margin: 0 auto;
+            margin: 0 auto; /* Centers the container */
             background: white;
             border-radius: 15px;
             padding: 30px;
@@ -49,10 +54,11 @@
             border-radius: 8px;
             margin-bottom: 20px;
             outline: none;
-            transition: border-color 0.3s;
+            transition: border-color 0.3s; /* Smooth color change animation */
         }
 
         .search-box:focus {
+            /* :focus = when user clicks into the input */
             border-color: #764ba2;
         }
 
@@ -87,6 +93,7 @@
         }
 
         tbody tr:hover {
+            /* Change background when mouse hovers over a row */
             background: #f8f9fa;
             cursor: pointer;
             transition: background 0.2s;
@@ -116,6 +123,7 @@
             font-weight: 600;
         }
 
+        /* Different color for each position */
         .position-PG { background: #e3f2fd; color: #1976d2; }
         .position-SG { background: #f3e5f5; color: #7b1fa2; }
         .position-SF { background: #e8f5e9; color: #388e3c; }
@@ -123,7 +131,9 @@
         .position-C { background: #fce4ec; color: #c2185b; }
     </style>
 </head>
+
 <body>
+
 <div class="container">
     <h1>🏀 NBA Player Stats</h1>
     <p class="subtitle">2023-2024 Regular Season</p>
@@ -136,32 +146,39 @@
     >
 
     <div class="stats-info">
-        <strong>Total Players:</strong> <span id="playerCount">Loading...</span>
+        <strong>Total Players:</strong>
+        <span id="playerCount">Loading...</span>
     </div>
 
+    <!-- This div gets filled with the player table by JavaScript -->
     <div id="content">
         <div class="loading">Loading players...</div>
     </div>
 </div>
 
 <script>
-    let allPlayers = [];
+    // JavaScript makes the page interactive
 
-    // Fetch players when page loads
+    let allPlayers = []; // Stores all player data
+
+    // Fetches player data from your Spring Boot API
     async function loadPlayers() {
         try {
+            // GET request to /api/players endpoint
             const response = await fetch('/api/players');
             allPlayers = await response.json();
 
+            // Update the player count and display table
             document.getElementById('playerCount').textContent = allPlayers.length;
             displayPlayers(allPlayers);
+
         } catch (error) {
             document.getElementById('content').innerHTML =
                 '<div class="error">Error loading players. Make sure the API is running!</div>';
         }
     }
 
-    // Display players in a table
+    // Creates the HTML table with player data
     function displayPlayers(players) {
         const html = `
             <table>
@@ -189,10 +206,11 @@
         document.getElementById('content').innerHTML = html;
     }
 
-    // Search functionality
+    // Filters players as user types in search box
     document.getElementById('searchBox').addEventListener('input', (e) => {
         const searchTerm = e.target.value.toLowerCase();
 
+        // Keep only players that match the search
         const filtered = allPlayers.filter(player =>
             player.name.toLowerCase().includes(searchTerm) ||
             player.team.toLowerCase().includes(searchTerm) ||
@@ -202,7 +220,7 @@
         displayPlayers(filtered);
     });
 
-    // View individual player (will add stats later)
+    // Placeholder function when clicking a player row
     function viewPlayer(id) {
         alert(`Player ID: ${id}\n(Stats view coming soon!)`);
     }
@@ -210,5 +228,6 @@
     // Load players when page loads
     loadPlayers();
 </script>
+
 </body>
 </html>
