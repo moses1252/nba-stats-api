@@ -53,20 +53,42 @@
         }
 
         /* ========================================
-           SEARCH BOX
+           FILTERS SECTION (Dropdown + Search)
            ======================================== */
-        .search-box {
-            width: 100%;
+        .filters-container {
+            display: flex;
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+
+        /* Team dropdown filter */
+        .team-filter {
+            flex: 0 0 250px; /* Fixed width for dropdown */
             padding: 15px;
             font-size: 16px;
             border: 2px solid #667eea;
             border-radius: 8px;
-            margin-bottom: 20px;
+            outline: none;
+            background: white;
+            cursor: pointer;
+            transition: border-color 0.3s;
+        }
+
+        .team-filter:focus {
+            border-color: #764ba2;
+        }
+
+        /* Search box */
+        .search-box {
+            flex: 1; /* Takes remaining space */
+            padding: 15px;
+            font-size: 16px;
+            border: 2px solid #667eea;
+            border-radius: 8px;
             outline: none;
             transition: border-color 0.3s;
         }
 
-        /* Change border color when focused */
         .search-box:focus {
             border-color: #764ba2;
         }
@@ -280,17 +302,28 @@
     <h1>🏀 NBA Player Stats</h1>
     <p class="subtitle">2023-2024 Regular Season</p>
 
-    <!-- Search Input Box -->
-    <input
-            type="text"
-            id="searchBox"
-            class="search-box"
-            placeholder="Search by player name, team, or position..."
-    >
+    <!-- ========================================
+         FILTERS SECTION (Dropdown + Search)
+         ======================================== -->
+    <div class="filters-container">
+        <!-- Team Dropdown Filter -->
+        <select id="teamFilter" class="team-filter">
+            <option value="">All Teams</option>
+            <!-- Teams will be populated by JavaScript -->
+        </select>
+
+        <!-- Search Input Box -->
+        <input
+                type="text"
+                id="searchBox"
+                class="search-box"
+                placeholder="Search by player name, team, or position..."
+        >
+    </div>
 
     <!-- Player Count Display -->
     <div class="stats-info">
-        <strong>Total Players:</strong> <span id="playerCount">Loading...</span>
+        <strong>Showing:</strong> <span id="playerCount">Loading...</span> players
     </div>
 
     <!-- Main Content Area (Table will be inserted here by JavaScript) -->
@@ -323,6 +356,7 @@
     // GLOBAL VARIABLES
     // ========================================
     let allPlayers = []; // Stores all players from API
+    let filteredPlayers = []; // Currently displayed players
 
     // ========================================
     // FUNCTION: Load all players from API
@@ -333,17 +367,39 @@
             // Fetch data from our Spring Boot API
             const response = await fetch('/api/players');
             allPlayers = await response.json(); // Convert to JavaScript array
+            filteredPlayers = allPlayers; // Initially show all
+
+            // Populate team dropdown
+            populateTeamDropdown();
 
             // Update player count display
-            document.getElementById('playerCount').textContent = allPlayers.length;
+            updatePlayerCount();
 
             // Display all players in table
-            displayPlayers(allPlayers);
+            displayPlayers(filteredPlayers);
         } catch (error) {
             // If API fails, show error message
             document.getElementById('content').innerHTML =
                 '<div class="error">Error loading players. Make sure the API is running!</div>';
         }
+    }
+
+    // ========================================
+    // FUNCTION: Populate team dropdown with unique teams
+    // ========================================
+    function populateTeamDropdown() {
+        // Get unique team codes from all players
+        const teams = [...new Set(allPlayers.map(player => player.team))].sort();
+
+        const dropdown = document.getElementById('teamFilter');
+
+        // Add each team as an option
+        teams.forEach(team => {
+            const option = document.createElement('option');
+            option.value = team;
+            option.textContent = team;
+            dropdown.appendChild(option);
+        });
     }
 
     // ========================================
@@ -380,23 +436,52 @@
     }
 
     // ========================================
-    // SEARCH FUNCTIONALITY
+    // FUNCTION: Update player count display
+    // ========================================
+    function updatePlayerCount() {
+        document.getElementById('playerCount').textContent = filteredPlayers.length;
+    }
+
+    // ========================================
+    // FUNCTION: Apply all filters (team + search)
+    // ========================================
+    function applyFilters() {
+        const teamFilter = document.getElementById('teamFilter').value;
+        const searchTerm = document.getElementById('searchBox').value.toLowerCase();
+
+        // Start with all players
+        filteredPlayers = allPlayers;
+
+        // Apply team filter if selected
+        if (teamFilter) {
+            filteredPlayers = filteredPlayers.filter(player => player.team === teamFilter);
+        }
+
+        // Apply search filter if typed
+        if (searchTerm) {
+            filteredPlayers = filteredPlayers.filter(player =>
+                player.name.toLowerCase().includes(searchTerm) ||
+                player.team.toLowerCase().includes(searchTerm) ||
+                player.position.toLowerCase().includes(searchTerm)
+            );
+        }
+
+        // Update display
+        updatePlayerCount();
+        displayPlayers(filteredPlayers);
+    }
+
+    // ========================================
+    // TEAM DROPDOWN CHANGE EVENT
+    // Filters players when team is selected
+    // ========================================
+    document.getElementById('teamFilter').addEventListener('change', applyFilters);
+
+    // ========================================
+    // SEARCH BOX INPUT EVENT
     // Filters players as user types in search box
     // ========================================
-    document.getElementById('searchBox').addEventListener('input', (e) => {
-        // Get search term and convert to lowercase
-        const searchTerm = e.target.value.toLowerCase();
-
-        // Filter players array based on search term
-        const filtered = allPlayers.filter(player =>
-            player.name.toLowerCase().includes(searchTerm) ||    // Search by name
-            player.team.toLowerCase().includes(searchTerm) ||    // Search by team
-            player.position.toLowerCase().includes(searchTerm)   // Search by position
-        );
-
-        // Display filtered results
-        displayPlayers(filtered);
-    });
+    document.getElementById('searchBox').addEventListener('input', applyFilters);
 
     // ========================================
     // FUNCTION: View individual player stats
