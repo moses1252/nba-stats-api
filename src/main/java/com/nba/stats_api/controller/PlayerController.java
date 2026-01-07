@@ -35,5 +35,9 @@ public class PlayerController {
         return playerRepository.findByName(name);
     }
 
-
+    // GET /api/players/team/LAL - Get players by team
+    @GetMapping("/team/{teamCode}")
+    public List<Player> getPlayersByTeam(@PathVariable String teamCode) {
+        return playerRepository.findByTeam(teamCode);
+    }
 }
