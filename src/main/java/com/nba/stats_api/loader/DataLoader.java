@@ -68,7 +68,7 @@ public class DataLoader implements CommandLineRunner {
             stats.setGamesPlayed(Integer.parseInt(data[5]));     // G
             stats.setGamesStarted(Integer.parseInt(data[6]));    // GS
             stats.setMinutesPerGame(Double.parseDouble(data[7])); // MP
-            stats.setPointsPerGame(Double.parseDouble(data[28])); // PTS
+            stats.setPointsPerGame(Double.parseDouble(data[29])); // PTS
 
             // TRB (Total Rebounds) is at index 23
             stats.setReboundsPerGame(Double.parseDouble(data[23])); // TRB
